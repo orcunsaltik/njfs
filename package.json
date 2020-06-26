@@ -1,0 +1,8 @@
+{
+    "name": "qfs",
+    "version": "1.0.0",
+    "keywords": ["util", "functional", "server", "node", "fs", "file", "folder", "move", "copy", "list"],
+    "author": "Orçun Saltık",
+    "email": "saltikorcun@gmail.com",
+    "contributors": []
+}
