@@ -1,14 +1,33 @@
 {
-    "name": "qfs",
-    "version": "1.0.0",
-    "keywords": ["util", "functional", "server", "node", "fs", "file", "folder", "move", "copy", "list"],
-    "description": "A small, quick and user friendly async filesystem functions for Node js",
-    "author": "Orçun Saltık",
-    "email": "saltikorcun@gmail.com",
-    "main": "main.js",
-    "scripts": {
-        "test": "echo \"Error: no test specified\" && exit 1"
-    },
-    "contributors": [],
-    "license": "MIT"
+  "name": "qfs",
+  "version": "1.0.0",
+  "keywords": [
+    "util",
+    "functional",
+    "server",
+    "node",
+    "fs",
+    "file",
+    "folder",
+    "move",
+    "copy",
+    "list"
+  ],
+  "description": "A small, quick and user friendly async filesystem functions for Node js",
+  "author": "Orçun Saltık",
+  "email": "saltikorcun@gmail.com",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "contributors": [],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://orcunsaltik@github.com/orcunsaltik/qfs.git"
+  },
+  "bugs": {
+    "url": "https://github.com/orcunsaltik/qfs/issues"
+  },
+  "homepage": "https://github.com/orcunsaltik/qfs#readme"
 }
