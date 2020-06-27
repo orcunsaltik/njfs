@@ -24,12 +24,12 @@
     "license": "MIT",
     "repository": {
         "type": "git",
-        "url": "git+https://orcunsaltik@github.com/orcunsaltik/qfs.git"
+        "url": "git+https://orcunsaltik@github.com/orcunsaltik/njfs.git"
     },
     "bugs": {
-        "url": "https://github.com/orcunsaltik/qfs/issues"
+        "url": "https://github.com/orcunsaltik/njfs/issues"
     },
-    "homepage": "https://github.com/orcunsaltik/qfs#readme",
+    "homepage": "https://github.com/orcunsaltik/njfs#readme",
     "publishConfig": {
         "registry": "https://npm.pkg.github.com/"
     }
