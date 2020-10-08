@@ -13,11 +13,11 @@ npm install njfs
 
 1. unix(path): Synchronous. Returns path with unix-like directory separators.
 2. root(path): Synchronous. Returns the root directory of the package.
-3. list(path): Asynchronous. Return the list of files and folders of the given path.
-4. move(path, dest): Asynchronous. Move files or folders.
-5. copy(path, dest): Asynchronous. Copy files or folders.
-6. isFile(path): Synchronous.
-7. isDir(path): Synchronous.
+3. list(path): Asynchronous. Returns the list of files and folders of the given path.
+4. move(path, dest): Asynchronous. Moves files or folders.
+5. copy(path, dest): Asynchronous. Copies files or folders.
+6. isFile(path): Synchronous. Checks whether the specified path is an existing file or not.
+7. isDir(path): Synchronous. Checks whether the specified path is an existing directory or not.
 
 ## Usage
 
