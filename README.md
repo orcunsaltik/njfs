@@ -1,5 +1,5 @@
-# njfs
-Node Js File System
+# Node Js File System
+[![Build Status](https://travis-ci.org/orcunsaltik/njfs.svg?branch=master)](https://travis-ci.org/orcunsaltik/njfs)
 
 A small collection of sync & async filesystem functions for Node Js. 
 
