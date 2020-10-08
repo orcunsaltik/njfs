@@ -7,7 +7,7 @@
 [![devDependencies Status](https://david-dm.org/orcunsaltik/njfs/dev-status.svg)](https://david-dm.org/orcunsaltik/njfs?type=dev)
 [![NPM Version](https://badge.fury.io/js/njfs.svg?style=flat)](https://npmjs.org/package/njfs)
 ![Snyk Vulnerabilities for GitHub Repo](https://img.shields.io/snyk/vulnerabilities/github/orcunsaltik/njfs)
-
+![npm](https://img.shields.io/npm/dt/njfs)
 
 A small collection of sync & async filesystem functions for Node Js. 
 
