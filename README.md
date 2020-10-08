@@ -1,13 +1,23 @@
 # njfs
 Node Js File System
 
-A small, quick and user friendly async filesystem functions for Node js. 
+A small collection of sync & async filesystem functions for Node Js. 
 
 ## Install
 
 ``` bash
 npm install --save-dev njfs
 ```
+
+## Methods
+
+1. unix
+2. root
+3. list
+4. move
+5. copy
+6. isFile
+7. isDir 
 
 ## Usage
 
