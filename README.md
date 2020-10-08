@@ -1,7 +1,7 @@
 # Node Js File System
 [![Build Status](https://travis-ci.com/orcunsaltik/njfs.svg?branch=master)](https://travis-ci.com/orcunsaltik/njfs)
 [![Maintainability](https://api.codeclimate.com/v1/badges/035ff3499e767eb6b552/maintainability)](https://codeclimate.com/github/orcunsaltik/njfs/maintainability)
-[![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/orcunsaltik/njfs/issues
+[![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/orcunsaltik/njfs/issues)
 [![HitCount](http://hits.dwyl.com/orcunsaltik/njfs.svg)](http://hits.dwyl.com/orcunsaltik/njfs)
 
 A small collection of sync & async filesystem functions for Node Js. 
