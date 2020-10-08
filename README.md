@@ -5,7 +5,9 @@
 [![HitCount](http://hits.dwyl.com/orcunsaltik/njfs.svg)](http://hits.dwyl.com/orcunsaltik/njfs)
 [![Dependency Status](https://david-dm.org/orcunsaltik/njfs.svg)](https://david-dm.org/orcunsaltik/njfs)
 [![devDependencies Status](https://david-dm.org/orcunsaltik/njfs/dev-status.svg)](https://david-dm.org/orcunsaltik/njfs?type=dev)
-[![NPM Version](https://badge.fury.io/js/njfs.svg?style=flat)](https://npmjs.org/package/njfs) 
+[![NPM Version](https://badge.fury.io/js/njfs.svg?style=flat)](https://npmjs.org/package/njfs)
+![Snyk Vulnerabilities for GitHub Repo](https://img.shields.io/snyk/vulnerabilities/github/orcunsaltik/njfs)
+
 
 A small collection of sync & async filesystem functions for Node Js. 
 
