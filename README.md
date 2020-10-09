@@ -13,7 +13,7 @@ A small collection of sync & async filesystem functions for Node Js.
 ## Install
 
 ``` bash
-npm install njfs
+npm install --save-dev njfs
 ```
 
 ## Methods
@@ -53,3 +53,12 @@ gulp.task('example', async () =>
     })
 ));
 ```
+
+## Author
+
+Github: [@orcunsaltik](https://github.com/orcunsaltik)
+
+
+## License
+
+See the [LICENSE](LICENSE) file for license rights and limitations (MIT).
