@@ -54,6 +54,10 @@ gulp.task('example', async () =>
 ));
 ```
 
+## Troubleshooting
+
+When you encounter a problem, please open an issue. I would be glad to help you to find a solution if possible.
+
 ## Author
 
 Github: [@orcunsaltik](https://github.com/orcunsaltik)
