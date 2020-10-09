@@ -1,13 +1,4 @@
-# Dist
-
-!/dist
-
-.eslintignore
-.eslintrc.json
-.eslintrc.js
 
 /.editorconfig
-/.gitattributes
+/.gitignore
 
-/lib
-/gulpfile.js
