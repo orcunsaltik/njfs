@@ -1,6 +1,5 @@
 # Node Js File System
 [![Build Status](https://travis-ci.com/orcunsaltik/njfs.svg?branch=master)](https://travis-ci.com/orcunsaltik/njfs)
-[![Dependency Status](https://david-dm.org/orcunsaltik/njfs.svg)](https://david-dm.org/orcunsaltik/njfs)
 [![devDependencies Status](https://david-dm.org/orcunsaltik/njfs/dev-status.svg)](https://david-dm.org/orcunsaltik/njfs?type=dev)
 [![Maintainability](https://api.codeclimate.com/v1/badges/035ff3499e767eb6b552/maintainability)](https://codeclimate.com/github/orcunsaltik/njfs/maintainability)
 ![Snyk Vulnerabilities for GitHub Repo](https://img.shields.io/snyk/vulnerabilities/github/orcunsaltik/njfs)

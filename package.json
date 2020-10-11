@@ -1,6 +1,6 @@
 {
     "name": "njfs",
-    "version": "1.2.3",
+    "version": "1.2.4",
     "keywords": [
         "es6",
         "util",
@@ -16,12 +16,12 @@
         "copy",
         "list"
     ],
-    "description": "A small collection of sync & async filesystem functions for use in node js.",
+    "description": "A small collection of sync & async filesystem functions in Node.js.",
     "author": "Orçun Saltık",
     "email": "saltikorcun@gmail.com",
     "main": "main.js",
     "scripts": {
-        "lint": "eslint main.js -o error.log",
+        "lint": "eslint -c .eslintrc.js main.js --fix -o test/eslint.log -f unix",
         "test": "npm run lint"
     },
     "contributors": [],
@@ -35,16 +35,7 @@
     },
     "homepage": "https://github.com/orcunsaltik/njfs#readme",
     "devDependencies": {
-        "eslint": "^7.10.0"
-    },
-    "eslintConfig": {
-        "env": {
-            "browser": false,
-               "node": true,
-                "es6": true
-        },
-        "parserOptions": {
-            "ecmaVersion": 2018
-        }
+        "eslint": "^7.10.0",
+        "eslint-plugin-node": "^11.1.0"
     }
 }
