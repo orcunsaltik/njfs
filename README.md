@@ -19,7 +19,7 @@ npm install --save-dev njfs
 
 1. unix(path): Synchronous. Returns path with unix-like directory separators.
 2. root(path): Synchronous. Returns the root directory of the package.
-3. list(path): Asynchronous. Returns the list of files and folders of the given path.
+3. list(path, opts): Asynchronous. Returns the list of files and folders of the given path.
 4. move(path, dest): Asynchronous. Moves files or folders.
 5. copy(path, dest): Asynchronous. Copies files or folders.
 6. isFile(path): Synchronous. Checks whether the specified path is an existing file or not.
@@ -28,17 +28,17 @@ npm install --save-dev njfs
 ## Usage
 
 ``` js
-const {move, copy, list, isDir} = require('njfs');
+const {move, copy, root, list, isDir} = require('njfs');
 
 gulp.task('example', async () =>
 
-    await gulp.watch(['./src/**/*.js'], gulp.series('build', async () => {
+    await gulp.watch(['./src/*.*'], gulp.series('build', async () => {
 
-        const dist = 'vhosts/a';
-        const dest = 'vhosts/a/b/c/js';
+        const dist = root() + 'src';
+        const dest = root() + 'dist/js';
 
         try {
-            const files = await list(dist);
+            const files = await list(dist, {extensions:'js, jsx'});
             await Promise.all(files.map(async (file) => {
                 const path = `${dist}/${file}`;
                 if (!isDir(path)) {
