@@ -7,16 +7,18 @@
 
 > A collection of Node.js filesystem utility functions
 
-Lightweight utility library providing synchronous and asynchronous filesystem operations for Node.js projects.
+Production-ready filesystem utilities with zero dependencies. Supports both files and directories, recursive operations, and cross-platform compatibility.
 
 ## Features
 
 - ✅ Zero dependencies
 - ✅ Simple, intuitive API
-- ✅ Both sync and async methods
+- ✅ Async-first with optional sync methods
+- ✅ Recursive directory operations
+- ✅ Cross-device move support
 - ✅ Modern Node.js support (18+)
-- ✅ TypeScript-friendly with JSDoc
-- ✅ Promise-based async operations
+- ✅ Full TypeScript JSDoc annotations
+- ✅ Production-tested
 
 ## Installation
 
@@ -24,51 +26,38 @@ Lightweight utility library providing synchronous and asynchronous filesystem op
 npm install njfs
 ```
 
+## Quick Start
+
+```javascript
+const { copy, list, mkdirp, readFile, writeFile } = require('njfs');
+
+// Copy entire directory
+await copy('./src', './dist');
+
+// List files recursively
+const files = await list('./src', { recursive: true, extensions: ['js', 'ts'] });
+
+// Create nested directories
+await mkdirp('./build/assets/images');
+
+// Read and write files
+const content = await readFile('./config.json');
+await writeFile('./output/data.json', JSON.stringify(data));
+```
+
 ## API Reference
 
 ### File & Directory Checking
 
-#### `isFile(path)` • Sync
-
-Checks whether the specified path is an existing file.
-
-```javascript
-const { isFile } = require('njfs');
-
-if (isFile('./package.json')) {
-  console.log('File exists!');
-}
-```
-
-**Returns:** `boolean`
-
----
-
-#### `isDir(path)` • Sync
-
-Checks whether the specified path is an existing directory.
-
-```javascript
-const { isDir } = require('njfs');
-
-if (isDir('./src')) {
-  console.log('Directory exists!');
-}
-```
-
-**Returns:** `boolean`
-
----
-
 #### `exists(path)` • Async
 
-Checks whether the specified path exists (file or directory).
+Check if a path exists (file or directory).
 
 ```javascript
 const { exists } = require('njfs');
 
 if (await exists('./config.json')) {
-  console.log('Path exists!');
+  console.log('Config exists!');
 }
 ```
 
@@ -76,28 +65,102 @@ if (await exists('./config.json')) {
 
 ---
 
+#### `isFile(path)` • Async
+
+Check if a path is a file.
+
+```javascript
+const { isFile } = require('njfs');
+
+if (await isFile('./package.json')) {
+  console.log('Is a file!');
+}
+```
+
+**Returns:** `Promise<boolean>`
+
+---
+
+#### `isDir(path)` • Async
+
+Check if a path is a directory.
+
+```javascript
+const { isDir } = require('njfs');
+
+if (await isDir('./src')) {
+  console.log('Is a directory!');
+}
+```
+
+**Returns:** `Promise<boolean>`
+
+---
+
+#### `isFileSync(path)` • Sync
+
+Synchronous version of `isFile`. Use sparingly (blocks event loop).
+
+```javascript
+const { isFileSync } = require('njfs');
+
+if (isFileSync('./package.json')) {
+  console.log('Is a file!');
+}
+```
+
+**Returns:** `boolean`
+
+---
+
+#### `isDirSync(path)` • Sync
+
+Synchronous version of `isDir`. Use sparingly (blocks event loop).
+
+```javascript
+const { isDirSync } = require('njfs');
+
+if (isDirSync('./src')) {
+  console.log('Is a directory!');
+}
+```
+
+**Returns:** `boolean`
+
+---
+
 ### Directory Operations
 
 #### `list(path, options)` • Async
 
-Returns list of files and folders in the given path.
+List files and directories with powerful filtering options.
 
 ```javascript
 const { list } = require('njfs');
 
-// List all files
-const allFiles = await list('./src');
+// List all entries
+const all = await list('./src');
 
-// Filter by extensions
-const jsFiles = await list('./src', { extensions: 'js, jsx' });
+// Filter by extension
+const jsFiles = await list('./src', { extensions: 'js' });
+const codeFiles = await list('./src', { extensions: ['js', 'ts', 'jsx'] });
 
-// Multiple extensions
-const files = await list('./src', { extensions: ['js', 'ts', 'jsx'] });
+// Recursive listing
+const allFiles = await list('./src', { recursive: true });
+
+// Get full paths
+const paths = await list('./src', {
+  recursive: true,
+  fullPath: true,
+  extensions: ['js', 'json']
+});
 ```
 
-**Parameters:**
-- `path` (string): Directory path
-- `options.extensions` (string | string[]): File extensions to filter
+**Options:**
+
+- `extensions` (string | string[]): Filter by file extensions
+- `recursive` (boolean): Walk subdirectories (default: `false`)
+- `fullPath` (boolean): Return absolute paths instead of names (default: `false`)
 
 **Returns:** `Promise<string[]>`
 
@@ -105,12 +168,12 @@ const files = await list('./src', { extensions: ['js', 'ts', 'jsx'] });
 
 #### `mkdirp(path)` • Async
 
-Creates directory recursively (like `mkdir -p`). Creates parent directories if they don't exist.
+Create directory recursively (like `mkdir -p`).
 
 ```javascript
 const { mkdirp } = require('njfs');
 
-// Creates nested directories
+// Creates all parent directories
 await mkdirp('./dist/assets/images');
 ```
 
@@ -120,7 +183,7 @@ await mkdirp('./dist/assets/images');
 
 #### `root()` • Sync
 
-Returns the current working directory (project root).
+Get the current working directory.
 
 ```javascript
 const { root } = require('njfs');
@@ -137,16 +200,22 @@ console.log(projectRoot); // '/home/user/my-project'
 
 #### `copy(source, destination)` • Async
 
-Copies files from source to destination.
+Copy files **or directories** recursively.
 
 ```javascript
 const { copy } = require('njfs');
 
-// Copy to directory
-await copy('./src/file.js', './dist/');
+// Copy file
+await copy('./src/app.js', './dist/app.js');
 
-// Copy with new name
-await copy('./src/file.js', './dist/renamed.js');
+// Copy file to directory (keeps name)
+await copy('./src/app.js', './dist/');
+
+// Copy entire directory recursively
+await copy('./src', './dist');
+
+// Copy directory to new location
+await copy('./templates', './build/templates');
 ```
 
 **Returns:** `Promise<string>` - Destination path
@@ -155,34 +224,42 @@ await copy('./src/file.js', './dist/renamed.js');
 
 #### `move(source, destination)` • Async
 
-Moves files from source to destination.
+Move files **or directories** with cross-device support.
 
 ```javascript
 const { move } = require('njfs');
 
-// Move to directory
+// Move file
+await move('./temp/file.js', './archive/file.js');
+
+// Move to directory (keeps name)
 await move('./temp/file.js', './archive/');
 
-// Move with new name
-await move('./temp/file.js', './archive/renamed.js');
+// Move entire directory
+await move('./old-folder', './new-folder');
+
+// Cross-device move (automatically falls back to copy+delete)
+await move('/mnt/drive1/data', '/mnt/drive2/data');
 ```
 
 **Returns:** `Promise<string>` - Destination path
+
+**Note:** Automatically handles cross-device moves by copying then deleting.
 
 ---
 
 #### `remove(path)` • Async
 
-Removes file or directory recursively.
+Remove file or directory recursively.
 
 ```javascript
 const { remove } = require('njfs');
 
 // Remove file
-await remove('./temp/file.txt');
+await remove('./temp.txt');
 
 // Remove directory and all contents
-await remove('./temp');
+await remove('./build');
 ```
 
 **Returns:** `Promise<void>`
@@ -191,29 +268,33 @@ await remove('./temp');
 
 #### `readFile(path, encoding)` • Async
 
-Reads file contents.
+Read file contents.
 
 ```javascript
 const { readFile } = require('njfs');
 
 // Read as UTF-8 (default)
-const content = await readFile('./config.json');
+const text = await readFile('./config.json');
+
+// Read as buffer
+const buffer = await readFile('./image.png', null);
 
 // Read with specific encoding
-const content = await readFile('./data.txt', 'latin1');
+const latin = await readFile('./legacy.txt', 'latin1');
 ```
 
 **Parameters:**
-- `path` (string): File path
-- `encoding` (string): File encoding (default: `'utf8'`)
 
-**Returns:** `Promise<string>`
+- `path` (string): File path
+- `encoding` (string | null): Encoding (default: `'utf8'`, use `null` for buffer)
+
+**Returns:** `Promise<string | Buffer>`
 
 ---
 
 #### `writeFile(path, content)` • Async
 
-Writes content to file. Automatically creates parent directories if they don't exist.
+Write content to file. Creates parent directories automatically.
 
 ```javascript
 const { writeFile } = require('njfs');
@@ -222,7 +303,10 @@ const { writeFile } = require('njfs');
 await writeFile('./output/data.txt', 'Hello World');
 
 // Write JSON
-await writeFile('./output/config.json', JSON.stringify(config, null, 2));
+await writeFile('./config.json', JSON.stringify(config, null, 2));
+
+// Nested path (creates directories)
+await writeFile('./build/assets/data.json', content);
 ```
 
 **Returns:** `Promise<void>`
@@ -233,12 +317,12 @@ await writeFile('./output/config.json', JSON.stringify(config, null, 2));
 
 #### `unix(path)` • Sync
 
-Converts path to Unix-style directory separators.
+Convert path to Unix-style separators.
 
 ```javascript
 const { unix } = require('njfs');
 
-unix('C:\\Users\\name\\project');
+const normalized = unix('C:\\Users\\name\\project');
 // Returns: 'C:/Users/name/project'
 ```
 
@@ -248,55 +332,140 @@ unix('C:\\Users\\name\\project');
 
 ## Usage Examples
 
-### Basic File Operations
+### Build Script
 
 ```javascript
-const { copy, move, remove, exists, isFile } = require('njfs');
+const { copy, list, mkdirp, remove } = require('njfs');
 
-async function organizeFiles() {
-  // Check if file exists
-  if (await exists('./temp.txt')) {
-    // Copy to backup
-    await copy('./temp.txt', './backup/temp.txt');
+async function build() {
+  // Clean
+  await remove('./dist');
 
-    // Move to archive
-    await move('./temp.txt', './archive/temp.txt');
-  }
+  // Create output structure
+  await mkdirp('./dist/js');
+  await mkdirp('./dist/css');
 
-  // Clean up old files
-  if (await exists('./old-data')) {
-    await remove('./old-data');
-  }
-}
+  // Copy all JavaScript files
+  const jsFiles = await list('./src', {
+    recursive: true,
+    extensions: ['js', 'jsx'],
+    fullPath: true
+  });
 
-organizeFiles();
-```
-
----
-
-### Build Script with Directory Creation
-
-```javascript
-const { mkdirp, writeFile, readFile, list } = require('njfs');
-
-async function buildProject() {
-  // Ensure output directories exist
-  await mkdirp('./dist/assets/js');
-  await mkdirp('./dist/assets/css');
-
-  // Process files
-  const files = await list('./src', { extensions: 'js' });
-
-  for (const file of files) {
-    const content = await readFile(`./src/${file}`);
-    const processed = content.toUpperCase(); // Example transformation
-    await writeFile(`./dist/assets/js/${file}`, processed);
+  for (const file of jsFiles) {
+    const destPath = file.replace('/src/', '/dist/js/');
+    await copy(file, destPath);
   }
 
   console.log('Build complete!');
 }
 
-buildProject();
+build();
+```
+
+---
+
+### Directory Sync
+
+```javascript
+const { copy, list, exists, remove } = require('njfs');
+
+async function syncDirectories(source, target) {
+  // Get all files from source
+  const sourceFiles = await list(source, {
+    recursive: true,
+    fullPath: true
+  });
+
+  // Remove target if exists
+  if (await exists(target)) {
+    await remove(target);
+  }
+
+  // Copy entire directory
+  await copy(source, target);
+
+  console.log(`Synced ${sourceFiles.length} files`);
+}
+
+syncDirectories('./source', './backup');
+```
+
+---
+
+### File Organization
+
+```javascript
+const { list, move, mkdirp, unix } = require('njfs');
+const path = require('path');
+
+async function organizeByExtension(sourceDir) {
+  const files = await list(sourceDir, { fullPath: true });
+
+  for (const file of files) {
+    const ext = path.extname(file).slice(1) || 'no-extension';
+    const destDir = `${sourceDir}/organized/${ext}`;
+
+    await mkdirp(destDir);
+    await move(file, destDir);
+
+    console.log(`Moved: ${unix(file)} → ${ext}/`);
+  }
+}
+
+organizeByExtension('./downloads');
+```
+
+---
+
+### Recursive File Search
+
+```javascript
+const { list, readFile } = require('njfs');
+
+async function searchInFiles(dir, searchText) {
+  const files = await list(dir, {
+    recursive: true,
+    extensions: ['js', 'ts', 'json'],
+    fullPath: true
+  });
+
+  const matches = [];
+
+  for (const file of files) {
+    const content = await readFile(file);
+    if (content.includes(searchText)) {
+      matches.push(file);
+    }
+  }
+
+  return matches;
+}
+
+const results = await searchInFiles('./src', 'TODO');
+console.log(`Found ${results.length} files with TODOs`);
+```
+
+---
+
+### Backup System
+
+```javascript
+const { copy, mkdirp, unix } = require('njfs');
+const path = require('path');
+
+async function createBackup(source, backupRoot) {
+  const timestamp = new Date().toISOString().replace(/:/g, '-');
+  const backupPath = path.join(backupRoot, timestamp);
+
+  await mkdirp(backupPath);
+  await copy(source, backupPath);
+
+  console.log(`Backup created: ${unix(backupPath)}`);
+  return backupPath;
+}
+
+createBackup('./important-data', './backups');
 ```
 
 ---
@@ -304,97 +473,32 @@ buildProject();
 ### Gulp Integration
 
 ```javascript
-const { list, copy, root, isDir } = require('njfs');
-const { src, dest, watch, series } = require('gulp');
+const { list, copy, root } = require('njfs');
+const { series, watch } = require('gulp');
 
-async function copyJsFiles() {
-  const srcDir = `${root()}/src`;
-  const distDir = `${root()}/dist/js`;
+async function copyAssets() {
+  const srcDir = `${root()}/assets`;
+  const distDir = `${root()}/dist/assets`;
 
-  try {
-    // Get all JS files
-    const files = await list(srcDir, { extensions: 'js, jsx' });
-
-    // Copy each file
-    await Promise.all(
-      files.map(async (file) => {
-        const filePath = `${srcDir}/${file}`;
-        if (!isDir(filePath)) {
-          await copy(filePath, distDir);
-          console.log(`✓ ${file} → ${distDir}`);
-        }
-      })
-    );
-  } catch (error) {
-    console.error('Copy failed:', error);
-  }
+  await copy(srcDir, distDir);
+  console.log('✓ Assets copied');
 }
 
-exports.build = series(copyJsFiles);
-exports.watch = () => watch('./src/**/*.js', series(copyJsFiles));
-```
+async function processScripts() {
+  const files = await list('./src', {
+    recursive: true,
+    extensions: ['js', 'ts']
+  });
 
----
-
-### File Processing Pipeline
-
-```javascript
-const { list, readFile, writeFile, mkdirp, remove } = require('njfs');
-
-async function processMarkdown() {
-  // Ensure output directory
-  await mkdirp('./output');
-
-  // Get all markdown files
-  const files = await list('./content', { extensions: 'md' });
-
-  for (const file of files) {
-    // Read file
-    const markdown = await readFile(`./content/${file}`);
-
-    // Process (example: convert to uppercase)
-    const processed = markdown.toUpperCase();
-
-    // Write output
-    const outputFile = file.replace('.md', '.txt');
-    await writeFile(`./output/${outputFile}`, processed);
-  }
-
-  console.log(`Processed ${files.length} files`);
+  console.log(`Processing ${files.length} script files...`);
+  // ... your build logic
 }
 
-processMarkdown();
-```
-
----
-
-### Batch File Operations
-
-```javascript
-const { list, move, exists, mkdirp } = require('njfs');
-
-async function organizeByExtension() {
-  const files = await list('./downloads');
-
-  for (const file of files) {
-    const sourcePath = `./downloads/${file}`;
-
-    if (await exists(sourcePath)) {
-      // Get extension
-      const ext = file.split('.').pop();
-      const destDir = `./organized/${ext}`;
-
-      // Ensure directory exists
-      await mkdirp(destDir);
-
-      // Move file
-      await move(sourcePath, destDir);
-      console.log(`Moved: ${file} → ${destDir}/`);
-    }
-  }
-}
-
-organizeByExtension();
+exports.build = series(copyAssets, processScripts);
+exports.watch = () => {
+  watch('./assets/**/*', copyAssets);
+  watch('./src/**/*.{js,ts}', processScripts);
+};
 ```
 
 ---
@@ -406,21 +510,43 @@ organizeByExtension();
 ## Changelog
 
 ### v2.0.0 (2025)
+
 - 🚀 **BREAKING:** Requires Node.js 18+
-- 🚀 Modernized to use `fs/promises` API
-- ✨ Added `exists(path)` - Check if path exists
-- ✨ Added `remove(path)` - Recursive delete
-- ✨ Added `mkdirp(path)` - Recursive directory creation
-- ✨ Added `readFile(path, encoding)` - Read file contents
-- ✨ Added `writeFile(path, content)` - Write file contents
+- 🚀 **BREAKING:** `isDir` and `isFile` are now async (use `isDirSync`/`isFileSync` for sync)
+- ✨ **NEW:** `copy` now supports directories recursively
+- ✨ **NEW:** `move` now supports directories with cross-device fallback
+- ✨ **NEW:** `list` supports `recursive` and `fullPath` options
+- ✨ **NEW:** `exists(path)` - Check if path exists
+- ✨ **NEW:** `remove(path)` - Recursive delete
+- ✨ **NEW:** `mkdirp(path)` - Recursive directory creation
+- ✨ **NEW:** `readFile(path, encoding)` - Read file contents
+- ✨ **NEW:** `writeFile(path, content)` - Write file with auto-mkdir
 - 🐛 Fixed `root()` to use `process.cwd()` instead of `__dirname`
-- 🐛 Fixed `isDir()` and `isFile()` to handle missing files gracefully
+- 🐛 Fixed path normalization bugs on Windows
+- 🐛 Fixed stream handling in `copy` to properly await completion
 - 📚 Added comprehensive JSDoc documentation
-- 🔧 Improved error handling with descriptive messages
-- 🔧 Better path normalization in `copy()` and `move()`
+- 🔧 Better error handling and messages
+- ⚡ Performance improvements
 
 ### v1.2.5 (2021)
+
 - Previous stable release
+
+## Migration from v1.x
+
+```javascript
+// v1.x - Sync checks
+if (isDir('./src')) {
+}
+
+// v2.x - Async checks (recommended)
+if (await isDir('./src')) {
+}
+
+// v2.x - Sync fallback (use sparingly)
+if (isDirSync('./src')) {
+}
+```
 
 ## Contributing
 
@@ -428,7 +554,11 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## Troubleshooting
 
-When you encounter a problem, please [open an issue](https://github.com/orcunsaltik/njfs/issues). I would be glad to help you find a solution.
+When you encounter a problem, please [open an issue](https://github.com/orcunsaltik/njfs/issues).
+
+## Credits
+
+Special thanks to Grok AI for architecture review and suggestions.
 
 ## Author
 

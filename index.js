@@ -1,58 +1,31 @@
+/**
+ * @typedef {'file' | 'directory'} NodeType
+ * @typedef {Object} ListOptions
+ * @property {string|string[]} [extensions] - Filter by extension (e.g. 'js' or ['js','ts'])
+ * @property {boolean} [recursive=false]   - Walk subdirectories
+ * @property {boolean} [fullPath=false]    - Return absolute paths instead of basenames
+ */
+
+const fs = require('fs/promises');
 const path = require('path');
-const {
-  access,
-  rename,
-  readdir,
-  unlink,
-  mkdir,
-  rm,
-  readFile: rf,
-  writeFile: wf,
-  lstatSync
-} = require('fs/promises');
 const { createReadStream, createWriteStream } = require('fs');
 
 /**
- * Convert path to Unix-style directory separators
- * @param {string} filepath - Path to convert
- * @returns {string} Unix-style path
+ * Convert any path to Unix-style separators (for display / globbing)
  */
-const unix = (filepath) => filepath.split(/\\+/).join('/');
+const unix = filepath => filepath.replace(/\\/g, '/');
 
 /**
- * Check if path is a directory
- * @param {string} filepath - Path to check
- * @returns {boolean} True if directory exists
+ * Get the current working directory (project root)
  */
-const isDir = (filepath) => {
-  try {
-    return lstatSync(filepath).isDirectory();
-  } catch {
-    return false;
-  }
-};
+const root = () => process.cwd();
 
 /**
- * Check if path is a file
- * @param {string} filepath - Path to check
- * @returns {boolean} True if file exists
+ * Check if a path exists
  */
-const isFile = (filepath) => {
+const exists = async filepath => {
   try {
-    return lstatSync(filepath).isFile();
-  } catch {
-    return false;
-  }
-};
-
-/**
- * Check if path exists (file or directory)
- * @param {string} filepath - Path to check
- * @returns {Promise<boolean>} True if exists
- */
-const exists = async(filepath) => {
-  try {
-    await access(filepath);
+    await fs.access(filepath);
     return true;
   } catch {
     return false;
@@ -60,191 +33,183 @@ const exists = async(filepath) => {
 };
 
 /**
- * List files and directories in a path
- * @param {string} dirPath - Directory path
- * @param {Object} opts - Options object
- * @param {string|string[]} opts.extensions - File extensions to filter (e.g., 'js' or ['js', 'jsx'])
- * @returns {Promise<string[]>} Array of file/directory names
+ * Return stats or null if not exists
  */
-const list = async(dirPath, opts = {}) => {
+const statSafe = async filepath => {
   try {
-    let files = await readdir(dirPath);
+    return await fs.stat(filepath);
+  } catch {
+    return null;
+  }
+};
 
-    let ext = opts.extensions;
-    if (ext) {
-      if (typeof ext === 'string') {
-        ext = ext.split(',');
+/**
+ * Synchronously check node type (kept for rare hot-paths; prefer async)
+ */
+const lstatSync = require('fs').lstatSync;
+const isDirSync = p => {
+  try {
+    return lstatSync(p).isDirectory();
+  } catch {
+    return false;
+  }
+};
+const isFileSync = p => {
+  try {
+    return lstatSync(p).isFile();
+  } catch {
+    return false;
+  }
+};
+
+/**
+ * Async type checks
+ */
+const isDir = async p => (await statSafe(p))?.isDirectory() ?? false;
+const isFile = async p => (await statSafe(p))?.isFile() ?? false;
+
+/**
+ * List entries in a directory
+ */
+const list = async(dirPath, { extensions, recursive = false, fullPath = false } = {}) => {
+  const entries = [];
+
+  const walk = async currentPath => {
+    const items = await fs.readdir(currentPath);
+    const promises = items.map(async name => {
+      const abs = path.join(currentPath, name);
+
+      if (recursive) {
+        const stats = await statSafe(abs);
+        if (stats?.isDirectory()) {
+          await walk(abs);
+          return;
+        }
       }
-      ext = ext.map((e) => '.' + e.replace(/\.|\s*/g, ''));
-      files = files.filter((file) => ext.indexOf(path.extname(file)) > -1);
-    }
 
-    return files;
-  } catch (error) {
-    throw new Error(`Failed to list directory: ${error.message}`);
-  }
-};
+      // Extension filter
+      if (extensions) {
+        const ext = path.extname(name).toLowerCase();
+        const allowed = Array.isArray(extensions)
+          ? extensions.map(e => '.' + e.replace(/^\.+/, '').toLowerCase())
+          : ['.' + extensions.replace(/^\.+/, '').toLowerCase()];
+        if (!allowed.includes(ext)) return;
+      }
 
-/**
- * Get project root directory
- * @returns {string} Root directory path
- */
-const root = () => process.cwd();
-
-/**
- * Copy file or directory
- * @param {string} source - Source path
- * @param {string} dest - Destination path
- * @returns {Promise<string>} Destination path
- */
-const copy = async(source, dest) => {
-  const sep = path.sep;
-
-  source = source.replace(/\/|\\/g, sep).replace(/[/\\]+$/g, '');
-  dest = dest.replace(/\/|\\/g, sep).replace(/[/\\]+$/g, '');
-
-  const filename = path.basename(source);
-  const ext = path.extname(dest);
-
-  let destDir = dest;
-
-  if (!ext) {
-    dest = path.join(dest, filename);
-  } else {
-    destDir = path.dirname(dest);
-  }
-
-  try {
-    // Check if destination exists and remove it
-    if (await exists(dest)) {
-      await unlink(dest);
-    }
-
-    // Ensure destination directory exists
-    await mkdir(destDir, { recursive: true });
-
-    // Copy file
-    return new Promise((resolve, reject) => {
-      const readStream = createReadStream(source);
-      const writeStream = createWriteStream(dest);
-
-      readStream.pipe(writeStream);
-
-      readStream.on('error', reject);
-      writeStream.on('error', reject);
-      writeStream.on('finish', () => resolve(dest));
+      entries.push(fullPath ? unix(abs) : name);
     });
-  } catch (error) {
-    throw new Error(`Failed to copy file: ${error.message}`);
-  }
+
+    await Promise.all(promises);
+  };
+
+  await walk(dirPath);
+  return entries;
 };
 
 /**
- * Move file or directory
- * @param {string} source - Source path
- * @param {string} dest - Destination path
- * @returns {Promise<string>} Destination path
+ * Ensure a directory exists (mkdir -p)
  */
-const move = async(source, dest) => {
-  const sep = path.sep;
-
-  source = source.replace(/\/|\\/g, sep).replace(/[/\\]+$/g, '');
-  dest = dest.replace(/\/|\\/g, sep).replace(/[/\\]+$/g, '');
-
-  const filename = path.basename(source);
-  const ext = path.extname(dest);
-
-  if (!ext) {
-    dest = path.join(dest, filename);
-  }
-
-  try {
-    // Check if destination exists and remove it
-    if (await exists(dest)) {
-      await unlink(dest);
-    }
-
-    // Ensure destination directory exists
-    const destDir = path.dirname(dest);
-    await mkdir(destDir, { recursive: true });
-
-    // Move file
-    await rename(source, dest);
-    return dest;
-  } catch (error) {
-    throw new Error(`Failed to move file: ${error.message}`);
-  }
-};
+const mkdirp = dirPath => fs.mkdir(dirPath, { recursive: true });
 
 /**
  * Remove file or directory recursively
- * @param {string} filepath - Path to remove
- * @returns {Promise<void>}
  */
-const remove = async(filepath) => {
-  try {
-    await rm(filepath, { recursive: true, force: true });
-  } catch (error) {
-    throw new Error(`Failed to remove: ${error.message}`);
-  }
-};
+const remove = filepath => fs.rm(filepath, { recursive: true, force: true });
 
 /**
- * Create directory recursively (like mkdir -p)
- * @param {string} dirPath - Directory path to create
- * @returns {Promise<void>}
+ * Read file as string (utf8) or buffer
  */
-const mkdirp = async(dirPath) => {
-  try {
-    await mkdir(dirPath, { recursive: true });
-  } catch (error) {
-    throw new Error(`Failed to create directory: ${error.message}`);
-  }
-};
+const readFile = (filepath, encoding = 'utf8') =>
+  encoding ? fs.readFile(filepath, encoding) : fs.readFile(filepath);
 
 /**
- * Read file contents
- * @param {string} filepath - File path
- * @param {string} encoding - File encoding (default: 'utf8')
- * @returns {Promise<string>} File contents
- */
-const readFile = async(filepath, encoding = 'utf8') => {
-  try {
-    return await rf(filepath, encoding);
-  } catch (error) {
-    throw new Error(`Failed to read file: ${error.message}`);
-  }
-};
-
-/**
- * Write content to file
- * @param {string} filepath - File path
- * @param {string} content - Content to write
- * @returns {Promise<void>}
+ * Write file, creating parent directories
  */
 const writeFile = async(filepath, content) => {
-  try {
-    // Ensure directory exists
-    const dir = path.dirname(filepath);
-    await mkdir(dir, { recursive: true });
+  const dir = path.dirname(filepath);
+  await mkdirp(dir);
+  await fs.writeFile(filepath, content, 'utf8');
+};
 
-    await wf(filepath, content, 'utf8');
-  } catch (error) {
-    throw new Error(`Failed to write file: ${error.message}`);
+/**
+ * Copy a file **or** directory recursively
+ */
+const copy = async(source, dest) => {
+  const srcStat = await statSafe(source);
+  if (!srcStat) throw new Error(`Source not found: ${source}`);
+
+  // Normalize destination
+  const destDir = path.extname(dest) ? path.dirname(dest) : dest;
+  await mkdirp(destDir);
+
+  if (srcStat.isDirectory()) {
+    // ---- Directory copy ----
+    await mkdirp(dest);
+    const items = await fs.readdir(source);
+    await Promise.all(items.map(item => copy(path.join(source, item), path.join(dest, item))));
+    return dest;
+  }
+
+  // ---- File copy ----
+  const finalDest = path.extname(dest) ? dest : path.join(dest, path.basename(source));
+
+  // Remove existing destination if any
+  if (await exists(finalDest)) await remove(finalDest);
+
+  return new Promise((resolve, reject) => {
+    const rs = createReadStream(source);
+    const ws = createWriteStream(finalDest);
+
+    rs.pipe(ws);
+    rs.on('error', reject);
+    ws.on('error', reject);
+    ws.on('finish', () => resolve(finalDest));
+  });
+};
+
+/**
+ * Move file or directory (rename + fallback copy+delete)
+ */
+const move = async(source, dest) => {
+  const srcStat = await statSafe(source);
+  if (!srcStat) throw new Error(`Source not found: ${source}`);
+
+  const finalDest = path.extname(dest) ? dest : path.join(dest, path.basename(source));
+  const destDir = path.dirname(finalDest);
+  await mkdirp(destDir);
+
+  // Try native rename first (fast, atomic)
+  try {
+    if (await exists(finalDest)) await remove(finalDest);
+    await fs.rename(source, finalDest);
+    return finalDest;
+  } catch (err) {
+    if (err.code !== 'EXDEV') throw err; // not cross-device → rethrow
+    // Cross-device: copy then delete
+    await copy(source, finalDest);
+    await remove(source);
+    return finalDest;
   }
 };
 
 module.exports = {
-  // Original methods
+  // Core
   copy,
   move,
   list,
   root,
-  isFile,
-  isDir,
   unix,
-  // New methods
+
+  // Async checks
   exists,
+  isDir,
+  isFile,
+
+  // Sync checks (use sparingly)
+  isDirSync,
+  isFileSync,
+
+  // Filesystem ops
   remove,
   mkdirp,
   readFile,
