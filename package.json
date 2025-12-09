@@ -1,41 +1,47 @@
 {
-    "name": "njfs",
-    "version": "1.2.5",
-    "keywords": [
-        "es6",
-        "util",
-        "node",
-        "filesystem",
-        "directory",
-        "path",
-        "file",
-        "folder",
-        "unix",
-        "root",
-        "move",
-        "copy",
-        "list"
-    ],
-    "description": "A small collection of sync & async filesystem functions in Node.js.",
-    "author": "Orçun Saltık",
-    "email": "saltikorcun@gmail.com",
-    "main": "index.js",
-    "scripts": {
-        "lint": "eslint -c .eslintrc.js index.js --fix -o eslint.log -f unix",
-        "test": "npm run lint"
-    },
-    "contributors": [],
-    "license": "MIT",
-    "repository": {
-        "type": "git",
-        "url": "git+https://orcunsaltik@github.com/orcunsaltik/njfs.git"
-    },
-    "bugs": {
-        "url": "https://github.com/orcunsaltik/njfs/issues"
-    },
-    "homepage": "https://github.com/orcunsaltik/njfs#readme",
-    "devDependencies": {
-        "eslint": "^7.10.0",
-        "eslint-plugin-node": "^11.1.0"
-    }
+  "name": "njfs",
+  "version": "2.0.0",
+  "description": "A collection of Node.js filesystem functions",
+  "main": "index.js",
+  "scripts": {
+    "lint": "eslint index.js",
+    "lint:fix": "eslint index.js --fix",
+    "test": "npm run lint"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/orcunsaltik/njfs.git"
+  },
+  "keywords": [
+    "nodejs",
+    "javascript",
+    "filesystem",
+    "fs",
+    "file",
+    "directory",
+    "folder",
+    "async",
+    "sync",
+    "utility",
+    "node",
+    "js"
+  ],
+  "engines": {
+    "node": ">= 18.0.0"
+  },
+  "author": "Orçun Saltık <saltikorcun@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/orcunsaltik/njfs/issues"
+  },
+  "homepage": "https://github.com/orcunsaltik/njfs#readme",
+  "dependencies": {},
+  "devDependencies": {
+    "eslint": "^8.57.0",
+    "eslint-config-standard": "^17.1.0",
+    "eslint-plugin-import": "^2.29.1",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-promise": "^6.1.1",
+    "prettier": "^3.2.5"
+  }
 }
