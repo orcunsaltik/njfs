@@ -5,7 +5,7 @@
 [![npm downloads](https://img.shields.io/npm/dt/njfs.svg)](https://www.npmjs.com/package/njfs)
 [![license](https://img.shields.io/npm/l/njfs.svg)](https://github.com/orcunsaltik/njfs/blob/master/LICENSE)
 
-> A collection of Node.js filesystem utility functions
+> Modern Node.js filesystem utilities - Zero dependencies, async-first API with recursive operations, cross-device move support, and full TypeScript JSDoc annotations.
 
 Production-ready filesystem utilities with zero dependencies. Supports both files and directories, recursive operations, and cross-platform compatibility.
 
@@ -152,7 +152,7 @@ const allFiles = await list('./src', { recursive: true });
 const paths = await list('./src', {
   recursive: true,
   fullPath: true,
-  extensions: ['js', 'json']
+  extensions: ['js', 'json'],
 });
 ```
 
@@ -349,7 +349,7 @@ async function build() {
   const jsFiles = await list('./src', {
     recursive: true,
     extensions: ['js', 'jsx'],
-    fullPath: true
+    fullPath: true,
   });
 
   for (const file of jsFiles) {
@@ -374,7 +374,7 @@ async function syncDirectories(source, target) {
   // Get all files from source
   const sourceFiles = await list(source, {
     recursive: true,
-    fullPath: true
+    fullPath: true,
   });
 
   // Remove target if exists
@@ -427,7 +427,7 @@ async function searchInFiles(dir, searchText) {
   const files = await list(dir, {
     recursive: true,
     extensions: ['js', 'ts', 'json'],
-    fullPath: true
+    fullPath: true,
   });
 
   const matches = [];
@@ -487,7 +487,7 @@ async function copyAssets() {
 async function processScripts() {
   const files = await list('./src', {
     recursive: true,
-    extensions: ['js', 'ts']
+    extensions: ['js', 'ts'],
   });
 
   console.log(`Processing ${files.length} script files...`);
@@ -509,7 +509,18 @@ exports.watch = () => {
 
 ## Changelog
 
-### v2.0.0 (2025)
+### v2.0.2 (2025)
+
+- 🚀 Updated config files to latest standards
+- 🚀 Improved development workflow
+- 🚀 Better code quality tools
+- 🚀 Updated SEO-friendly package description
+
+### v2.0.1 (2024)
+
+- Dependency updates
+
+### v2.0.0 (2024)
 
 - 🚀 **BREAKING:** Requires Node.js 18+
 - 🚀 **BREAKING:** `isDir` and `isFile` are now async (use `isDirSync`/`isFileSync` for sync)

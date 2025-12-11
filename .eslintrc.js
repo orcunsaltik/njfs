@@ -1,18 +1,16 @@
 module.exports = {
   env: {
+    es2022: true,
     node: true,
-    es2022: true
   },
-  extends: ['standard'],
+  extends: ['standard', 'plugin:node/recommended'],
   parserOptions: {
     ecmaVersion: 2022,
-    sourceType: 'module'
+    sourceType: 'module',
   },
   rules: {
+    'space-before-function-paren': 'off',
+    'comma-dangle': ['error', 'only-multiline'],
     semi: ['error', 'always'],
-    quotes: ['error', 'single'],
-    indent: ['error', 2],
-    'space-before-function-paren': ['error', 'never'],
-    'no-unused-vars': 'warn'
-  }
+  },
 };

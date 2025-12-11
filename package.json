@@ -1,7 +1,7 @@
 {
   "name": "njfs",
-  "version": "2.0.1",
-  "description": "A collection of Node.js filesystem functions",
+  "version": "2.0.2",
+  "description": "Modern Node.js filesystem utilities - Zero dependencies, async-first API with recursive operations, cross-device move support, and full TypeScript JSDoc annotations.",
   "main": "index.js",
   "scripts": {
     "lint": "eslint index.js",
@@ -24,7 +24,12 @@
     "sync",
     "utility",
     "node",
-    "js"
+    "js",
+    "recursive",
+    "zero-dependencies",
+    "cross-platform",
+    "typescript",
+    "jsdoc"
   ],
   "engines": {
     "node": ">= 18.0.0"
